@@ -28,7 +28,9 @@ class VisionDetectionService:
         
         # We filter the image after smoothing it
         blurred_frame = cv2.medianBlur(frame_hsv, 7)
-        skin = cv2.inRange(blurred_frame, (110, 10, 50), (170, 70, 255))
+        lighter_skin = cv2.inRange(blurred_frame, (115, 10, 50), (170, 70, 255))
+        darker_skin = cv2.inRange(blurred_frame, (5, 40, 100), (17, 130, 255))
+        skin = cv2.bitwise_or(lighter_skin, darker_skin)
         
         # We treat the holes in the filtered frame
         kernel = np.ones((3, 3), np.uint8)
