@@ -7,7 +7,7 @@ def main():
 
     # Detect the skin with the vision service
     vision_service = VisionDetectionService()
-    detected_skin = vision_service.analyze_frame_hsv_for_skin(img)
+    detected_skin = vision_service.analyze_frame_for_skin(img)
 
     # Display the resulting frame
     cv2.imshow('frame', detected_skin)
