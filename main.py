@@ -1,5 +1,4 @@
 import cv2
-import numpy as np
 from application.vision_detection_service import VisionDetectionService
 
 
