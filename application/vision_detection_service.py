@@ -54,9 +54,14 @@ class VisionDetectionService:
         right = left
         border_color = (0, 0, 0)
         img = cv2.copyMakeBorder(frame, top, bottom, left, right, borderType, None, border_color)
+
+        kernel = np.ones((3, 3), np.uint8)
+        img = cv2.erode(img, kernel, iterations=1)
+        img = cv2.dilate(img, kernel, iterations=1)
         
         # We only keep the pixels that respect the following conditions:
-        # R > 95 and G > 40 and B > 20 and R > G and R > B and | R - G | > 15 and Y > 80 where Y = 0.299*R + 0.287*G + 0.11*B
+        # R > 95 and G > 40 and B > 20 and R > B and R/G > 1.185 and (G/B - R/G) <= -0.0905 and Y > 80 
+        # where Y = 0.299*R + 0.287*G + 0.11*B
         rows,cols,_ = img.shape
         for i in range(rows):
             for j in range(cols):
@@ -65,7 +70,9 @@ class VisionDetectionService:
                 G = k[1]
                 R = k[2]
                 Y = 0.299*R + 0.287*G + 0.11*B
-                if (R > G and R > B and abs(R - G) > 15 and Y > 80 and max(k) - min(k) > 15):
+                Cr = R - Y
+                Cb = B - Y
+                if ((G/B - R/G) <= -0.0905 or R/G > 1.185 or Cr >= (0.3448*Cb)+76.2069) and Y > 80 and R > B:
                     img[i,j] = k
                 else:
                     img[i,j] = [0,0,0]
@@ -89,7 +96,7 @@ class VisionDetectionService:
         right = left
         border_color = (0, 0, 0)
         frame = cv2.copyMakeBorder(frame, top, bottom, left, right, borderType, None, border_color)
-        
+
         # We transfer into YCRCB
         frame_ycrcb = cv2.cvtColor(frame, cv2.COLOR_BGR2YCR_CB)
         
@@ -109,5 +116,5 @@ class VisionDetectionService:
         skin_on_rgb_frame = self.analyze_frame_rgb_for_skin(frame)
         global_skin_mask = cv2.bitwise_and(skin_on_hsv_frame, skin_on_ycrcb_frame)
         global_skin_mask = cv2.bitwise_and(global_skin_mask, skin_on_rgb_frame)
-        return skin_on_rgb_frame
+        return global_skin_mask
         
