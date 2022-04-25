@@ -8,7 +8,7 @@ class VisionDetectionService:
         """
         pass
 
-    def analyze_frame_hsv_for_skin(self, frame: np.ndarray) -> np.ndarray:
+    def analyze_frame_lab_for_skin(self, frame: np.ndarray) -> np.ndarray:
         """
         Analyzes a frame in order to detect the human skin
         :param frame: The frame to analyze
@@ -23,16 +23,12 @@ class VisionDetectionService:
         border_color = (0, 0, 0)
         img = cv2.copyMakeBorder(frame, top, bottom, left, right, borderType, None, border_color)
 
-        # We transfer into HSV
-        frame_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        # We transfer into LAB
+        frame_lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
         
         # We filter the image after smoothing it
-        blurred_frame = cv2.GaussianBlur(frame_hsv, (3, 3), 0)
-        lighter_skin = cv2.inRange(blurred_frame, (115, 10, 50), (170, 70, 255))
-        darker_skin = cv2.inRange(blurred_frame, (0, 40, 100), (17, 120, 255))
-        redder_skin = cv2.inRange(blurred_frame, (170, 25, 160), (179, 50, 255))
-        skin = cv2.bitwise_or(lighter_skin, darker_skin)
-        skin = cv2.bitwise_or(skin, redder_skin)
+        blurred_frame = cv2.GaussianBlur(frame_lab, (3, 3), 0)
+        skin = cv2.inRange(blurred_frame, (60, 137, 125), (227, 168, 170))
         
         # We treat the holes in the filtered frame
         kernel = np.ones((3, 3), np.uint8)
@@ -111,10 +107,10 @@ class VisionDetectionService:
         return opening
 
     def analyze_frame_for_skin(self, frame: np.ndarray) -> np.ndarray:
-        skin_on_hsv_frame = self.analyze_frame_hsv_for_skin(frame)
+        skin_on_lab_frame = self.analyze_frame_lab_for_skin(frame)
         skin_on_ycrcb_frame = self.analyze_frame_ycrcb_for_skin(frame)
         skin_on_rgb_frame = self.analyze_frame_rgb_for_skin(frame)
-        global_skin_mask = cv2.bitwise_and(skin_on_hsv_frame, skin_on_ycrcb_frame)
-        global_skin_mask = cv2.bitwise_and(global_skin_mask, skin_on_rgb_frame)
+        global_skin_mask = cv2.bitwise_and(skin_on_ycrcb_frame, skin_on_rgb_frame)
+        global_skin_mask = cv2.bitwise_and(global_skin_mask, skin_on_lab_frame)
         return global_skin_mask
         
