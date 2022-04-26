@@ -1,3 +1,4 @@
+from typing import List
 import cv2
 import numpy as np
 
@@ -8,35 +9,7 @@ class VisionDetectionService:
         """
         pass
 
-    def analyze_frame_lab_for_skin(self, frame: np.ndarray) -> np.ndarray:
-        """
-        Analyzes a frame in order to detect the human skin
-        :param frame: The frame to analyze
-        :return: The new frame with detected skin only
-        """
-        # Adding a border to detect the skin on the edge
-        borderType = cv2.BORDER_CONSTANT
-        top = int(0.006 * frame.shape[0])  # shape[0] = rows
-        bottom = top
-        left = int(0.002 * frame.shape[1])  # shape[1] = cols
-        right = left
-        border_color = (0, 0, 0)
-        img = cv2.copyMakeBorder(frame, top, bottom, left, right, borderType, None, border_color)
-
-        # We transfer into LAB
-        frame_lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
-        
-        # We filter the image after smoothing it
-        blurred_frame = cv2.GaussianBlur(frame_lab, (3, 3), 0)
-        skin = cv2.inRange(blurred_frame, (60, 137, 125), (227, 168, 170))
-        
-        # We treat the holes in the filtered frame
-        kernel = np.ones((3, 3), np.uint8)
-        opening = cv2.morphologyEx(skin, cv2.MORPH_OPEN, kernel)
-
-        return opening
-
-    def analyze_frame_rgb_for_skin(self, frame: np.ndarray) -> np.ndarray:
+    def analyze_frame_for_skin(self, frame: np.ndarray) -> np.ndarray:
         """
         Analyzes a frame in order to detect the human skin
         :param frame: The frame to analyze
@@ -65,12 +38,17 @@ class VisionDetectionService:
                 B = k[0]
                 G = k[1]
                 R = k[2]
-                Y = 0.299*R + 0.287*G + 0.11*B
-                Cr = R - Y
-                Cb = B - Y
-                if ((G/B - R/G) <= -0.0905 or R/G > 1.185 or Cr >= (0.3448*Cb)+76.2069) and Y > 80 and R > B:
-                    img[i,j] = k
-                else:
+                H, S, V = self._rgb_to_hsv(R, G, B)
+                Y = (0.299 * R) + (0.587 * G) + (0.114 * B)
+                I = 0.596*R - 0.275*G - 0.322*B
+                Q = 128 + (0.21153661 * R) + (-0.52273617 * G) + (0.31119955 * B)
+                Cb = 128 - 0.169*R - 0.331*G + 0.5*B
+                Cr = 128 + 0.5*R - 0.419*G - 0.081*B
+                x = 0.431*R + 0.342*G + 0.178*B
+                y = -0.222*R + 0.707*G + 0.071*B
+                a = 17.5*(((1.02*x)-y)/(y**0.5))
+                if not(121.5 < Q and 80 < Y < 242 and 77 <= Cb <= 127 and 133 <= Cr <= 173 and 0.1 < S < 0.7 and V > 40 and
+                R > G and R > B and abs(R - G) > 15 and 142 < a and (0 < H < 33 or 335 < H < 360)):
                     img[i,j] = [0,0,0]
 
         # We filter the image after smoothing it
@@ -78,39 +56,28 @@ class VisionDetectionService:
         skin = cv2.inRange(blurred_frame, (20, 40, 95), (255, 255, 255))
         
         # We treat the holes in the filtered frame
-        kernel = np.ones((1, 1), np.uint8)
-        opening = cv2.morphologyEx(skin, cv2.MORPH_OPEN, kernel)
-
-        return opening
-
-    def analyze_frame_ycrcb_for_skin(self, frame: np.ndarray) -> np.ndarray:
-        # Adding a border to detect the skin on the edge
-        borderType = cv2.BORDER_CONSTANT
-        top = int(0.006 * frame.shape[0])  # shape[0] = rows
-        bottom = top
-        left = int(0.002 * frame.shape[1])  # shape[1] = cols
-        right = left
-        border_color = (0, 0, 0)
-        frame = cv2.copyMakeBorder(frame, top, bottom, left, right, borderType, None, border_color)
-
-        # We transfer into YCRCB
-        frame_ycrcb = cv2.cvtColor(frame, cv2.COLOR_BGR2YCR_CB)
-        
-        # We filter the image after smoothing it
-        blurred_frame = cv2.GaussianBlur(frame_ycrcb, (3, 3), 0)
-        skin = cv2.inRange(blurred_frame, (88, 137, 85), (243, 180, 128))
-
-        # We treat the holes in the filtered frame
         kernel = np.ones((3, 3), np.uint8)
         opening = cv2.morphologyEx(skin, cv2.MORPH_OPEN, kernel)
-        
+
         return opening
 
-    def analyze_frame_for_skin(self, frame: np.ndarray) -> np.ndarray:
-        skin_on_lab_frame = self.analyze_frame_lab_for_skin(frame)
-        skin_on_ycrcb_frame = self.analyze_frame_ycrcb_for_skin(frame)
-        skin_on_rgb_frame = self.analyze_frame_rgb_for_skin(frame)
-        global_skin_mask = cv2.bitwise_and(skin_on_ycrcb_frame, skin_on_rgb_frame)
-        global_skin_mask = cv2.bitwise_and(global_skin_mask, skin_on_lab_frame)
-        return global_skin_mask
+    def _rgb_to_hsv(self, r, g, b):
+        r, g, b = r / 255.0, g / 255.0, b / 255.0
+        cmax = max(r, g, b)
+        cmin = min(r, g, b)
+        diff = cmax-cmin
+        if cmax == cmin:
+            h = 0
+        elif cmax == r:
+            h = (60 * ((g - b) / diff) + 360) % 360
+        elif cmax == g:
+            h = (60 * ((b - r) / diff) + 120) % 360
+        elif cmax == b:
+            h = (60 * ((r - g) / diff) + 240) % 360
+        if cmax == 0:
+            s = 0
+        else:
+            s = (diff / cmax)
+        v = cmax * 100
+        return h, s, v
         
