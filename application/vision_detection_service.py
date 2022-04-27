@@ -1,4 +1,3 @@
-from typing import List
 import cv2
 import numpy as np
 
@@ -26,29 +25,26 @@ class VisionDetectionService:
 
         kernel = np.ones((3, 3), np.uint8)
         img = cv2.erode(img, kernel, iterations=1)
-        img = cv2.dilate(img, kernel, iterations=1)
+
+        img_cie_lab = cv2.cvtColor(img, cv2.COLOR_BGR2Lab)
+        img_y_cr_cb = cv2.cvtColor(img, cv2.COLOR_BGR2YCR_CB)
+        img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV_FULL)
+        img_yuv = cv2.cvtColor(img, cv2.COLOR_BGR2YUV)
         
-        # We only keep the pixels that respect the following conditions:
-        # R > 95 and G > 40 and B > 20 and R > B and R/G > 1.185 and (G/B - R/G) <= -0.0905 and Y > 80 
-        # where Y = 0.299*R + 0.287*G + 0.11*B
+        # We only keep the pixels that respect certains criterias such as R > B, 77 <= Cb <= 133, 127 <= Cr <= 175
+        # and many others that can be found on the README of the repo
         rows,cols,_ = img.shape
         for i in range(rows):
             for j in range(cols):
-                k = img[i,j]
-                B = k[0]
-                G = k[1]
-                R = k[2]
-                H, S, V = self._rgb_to_hsv(R, G, B)
-                Y = (0.299 * R) + (0.587 * G) + (0.114 * B)
+                U, V = img_yuv[i,j][1], img_yuv[i,j][2]
+                B, G, R = img[i,j][0], img[i,j][1], img[i,j][2]
+                S = img_hsv[i,j][1]
+                Y, Cr, Cb = img_y_cr_cb[i,j][0], img_y_cr_cb[i,j][1], img_y_cr_cb[i,j][2]
+                L, a, b = img_cie_lab[i,j][0], img_cie_lab[i,j][1], img_cie_lab[i,j][2]
                 I = 0.596*R - 0.275*G - 0.322*B
                 Q = 128 + (0.21153661 * R) + (-0.52273617 * G) + (0.31119955 * B)
-                Cb = 128 - 0.169*R - 0.331*G + 0.5*B
-                Cr = 128 + 0.5*R - 0.419*G - 0.081*B
-                x = 0.431*R + 0.342*G + 0.178*B
-                y = -0.222*R + 0.707*G + 0.071*B
-                a = 17.5*(((1.02*x)-y)/(y**0.5))
-                if not(121.5 < Q and 80 < Y < 242 and 77 <= Cb <= 127 and 133 <= Cr <= 173 and 0.1 < S < 0.7 and V > 40 and
-                R > G and R > B and abs(R - G) > 15 and 142 < a and (0 < H < 33 or 335 < H < 360)):
+                if not(121.5 < Q and 80 < Y < 242 and 77 <= Cb <= 133 and 127 <= Cr <= 175 and 26 < S < 178 and R > G and V > U and 136 < V < 200 and
+                80 < U < 130 and R > B and abs(R - G) > 15 and 14 <= I <= 90 and 100 < L and 134 < a and 115 < b < 177):
                     img[i,j] = [0,0,0]
 
         # We filter the image after smoothing it
@@ -58,26 +54,8 @@ class VisionDetectionService:
         # We treat the holes in the filtered frame
         kernel = np.ones((3, 3), np.uint8)
         opening = cv2.morphologyEx(skin, cv2.MORPH_OPEN, kernel)
+        kernel = np.ones((4, 4), np.uint8)
+        closing = cv2.morphologyEx(opening, cv2.MORPH_CLOSE, kernel)
 
-        return opening
-
-    def _rgb_to_hsv(self, r, g, b):
-        r, g, b = r / 255.0, g / 255.0, b / 255.0
-        cmax = max(r, g, b)
-        cmin = min(r, g, b)
-        diff = cmax-cmin
-        if cmax == cmin:
-            h = 0
-        elif cmax == r:
-            h = (60 * ((g - b) / diff) + 360) % 360
-        elif cmax == g:
-            h = (60 * ((b - r) / diff) + 120) % 360
-        elif cmax == b:
-            h = (60 * ((r - g) / diff) + 240) % 360
-        if cmax == 0:
-            s = 0
-        else:
-            s = (diff / cmax)
-        v = cmax * 100
-        return h, s, v
+        return closing
         
