@@ -43,7 +43,7 @@ class VisionDetectionService:
                 L, a, b = img_cie_lab[i,j][0], img_cie_lab[i,j][1], img_cie_lab[i,j][2]
                 I = 0.596*R - 0.275*G - 0.322*B
                 Q = 128 + (0.21153661 * R) + (-0.52273617 * G) + (0.31119955 * B)
-                if not(121.5 < Q and 80 < Y < 242 and 77 <= Cb <= 133 and 127 <= Cr <= 175 and 26 < S < 178 and R > G and V > U and 136 < V < 200 and
+                if not(121.5 < Q and 80 < Y < 242 and 77 <= Cb <= 133 and 127 <= Cr <= 175 and 26 < S < 178 and R > G and 136 < V < 200 and
                 80 < U < 130 and R > B and abs(R - G) > 15 and 14 <= I <= 90 and 100 < L and 134 < a and 115 < b < 177):
                     img[i,j] = [0,0,0]
 

@@ -4,7 +4,7 @@ from application.vision_detection_service import VisionDetectionService
 
 def main():
     # Image to be loaded
-    frame = cv2.imread("images\\image_08.jpg")
+    frame = cv2.imread("images\\image_01.jpg")
 
     # Detect the skin with the vision service
     vision_service = VisionDetectionService()
