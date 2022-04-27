@@ -1,16 +1,25 @@
 # SkinDetector
-Skin detection using HSV color space in Python with OpenCV.
+Skin detection using multiples color spaces in Python with OpenCV.
 
-# The procedure
-First of all, we change the BGR image into its equivalent HSV image. After that, we use a filter with the following values:
+# Flowchart of the proposed system
+![alt text](https://scontent.fymy1-1.fna.fbcdn.net/v/t1.15752-9/278692184_396057225488342_3718144922394996355_n.png?_nc_cat=104&ccb=1-5&_nc_sid=ae9488&_nc_ohc=uinK-8jVldcAX8_ZKGP&_nc_oc=AQk8jgQ_sI3tZjyWUHQuSD-waWXTufyip8LDqaYnu1LwcLkqwP5728pgKWhra5Nyd68&_nc_ht=scontent.fymy1-1.fna&oh=03_AVJ2U1WAf5gSCguXkfKlxIpeg3_7BW21szGho2nhwHrMjQ&oe=628D1E57)
+
+# Description of the procedure
+OpenCV reads images in the BGR color space. Therefore, we start by treating each pixel with the threshold in the BGR color space. It's pretty simple, we only want to keep the pixels that respect the following conditions R > G and R > B
 --- | H | S | V |
 --- | --- | --- | --- |
-Min | 115 | 10  |  50 |
-Max | 170 | 70  | 255 |
+Min | 335/0 | 0.1  |  40 |
+Max | 360/33 | 0.7  | 255 |
 
-# Examples
-In the following images, you will see the skin detection results of HSV color space threshold for the first draft of the code.
-![alt text](https://scontent-lga3-1.xx.fbcdn.net/v/t1.15752-9/278768520_2074264022778023_7813106729143618220_n.png?_nc_cat=111&ccb=1-5&_nc_sid=ae9488&_nc_ohc=Sy1G2qaRrncAX9nXcWz&_nc_ht=scontent-lga3-1.xx&oh=03_AVKhUyrWiBVlxC5yZcwRF6WKZ5d8FQyrsY5BXE-Y2gca8g&oe=628C0F58)
-![alt text](https://media.discordapp.net/attachments/575755454919999489/967889419501731930/unknown.png?width=754&height=473)
-![alt text](https://scontent-lga3-1.xx.fbcdn.net/v/t1.15752-9/278558459_1331790350661069_7625032366075354887_n.png?_nc_cat=109&ccb=1-5&_nc_sid=ae9488&_nc_ohc=dJ4hJ_RLim0AX8X3xni&_nc_ht=scontent-lga3-1.xx&oh=03_AVKYPEu6XW3Pn7aU7XFv9Y3ZtYyqhnyIP7TzmroWBc395g&oe=6289A001)
+## References
+<a id="1">[1]</a> 
+Patil, Prajakta M., and Y. M. Patil, "Robust Skin Colour Detection and Tracking Algorithm", 
+International Journal of Engineering Research and Technology Vol. 1. No.8 (October-2012), ISSN: 2278-0181 (2012).
 
+<a id="2">[2]</a> 
+Phung, S. L., Bouzerdoum, A., And Chai, D: “A novel skin color model in ycbcr color space and its
+application to human face detection” , IEEE International Conference on Image Processing (ICIP’
+2002), vol. 1, 289-292(2002).
+
+<a id="3">[3]</a>
+Alejo, D. A. C. , & Gallegos Funes, F. J. (2017). Detection and Tracking of the Regions of Skin Using the Technique HS-ab. In (Ed.), Biomimetic Prosthetics. IntechOpen. https://doi.org/10.5772/intechopen.70027
