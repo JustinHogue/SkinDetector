@@ -48,6 +48,9 @@ This method took for granted that if a pixel respect all the conditions presente
 ![alt text](https://media.discordapp.net/attachments/575755454919999489/968688328121659435/unknown.png)
 ![alt text](https://media.discordapp.net/attachments/575755454919999489/968686178125627442/unknown.png)
 
+## Conclusion and limitations
+From what we can see with the examples, the results are quite good. In some situations, we even manage to separate the wood and the skin. However, when the skin is too bright or not bright enough, the program is no longer able to detect the skin. An interesting addition would be to try to determine the filters needed to detect only the lighted or very shaded skin.
+
 ## References
 <a id="1">[1]</a> 
 Patil, Prajakta M., and Y. M. Patil, "Robust Skin Colour Detection and Tracking Algorithm", 
