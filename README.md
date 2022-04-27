@@ -44,9 +44,9 @@ This method took for granted that if a pixel respect all the conditions presente
 ![alt text](https://media.discordapp.net/attachments/575755454919999489/968684830248271962/unknown.png?width=631&height=473)
 ![alt text](https://media.discordapp.net/attachments/575755454919999489/968685158075088936/unknown.png)
 ![alt text](https://media.discordapp.net/attachments/575755454919999489/968685759458607124/unknown.png)
-![alt text](https://media.discordapp.net/attachments/575755454919999489/968686178125627442/unknown.png)
 ![alt text](https://media.discordapp.net/attachments/575755454919999489/968687613928173628/unknown.png?width=666&height=473)
 ![alt text](https://media.discordapp.net/attachments/575755454919999489/968688328121659435/unknown.png)
+![alt text](https://media.discordapp.net/attachments/575755454919999489/968686178125627442/unknown.png)
 
 ## References
 <a id="1">[1]</a> 
