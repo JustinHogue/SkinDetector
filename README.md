@@ -40,6 +40,15 @@ The last color space used was the Lab color space where we keep the pixels respe
 
 This method took for granted that if a pixel respect all the conditions presented above, then it must be a skin-related pixel!
 
+## How to use it
+In order to use this program, you first need to install all the requirements with the following command:
+```
+pip install -r .\requirements.txt
+```
+After that, you only need to run the main.py program. If you want to change the treated picture, you only have to change the path inside this line:
+
+![alt text](https://media.discordapp.net/attachments/575755454919999489/968690648439980072/unknown.png)
+
 ## Examples
 ![alt text](https://media.discordapp.net/attachments/575755454919999489/968684830248271962/unknown.png?width=631&height=473)
 ![alt text](https://media.discordapp.net/attachments/575755454919999489/968685158075088936/unknown.png)
